@@ -40,24 +40,23 @@ gdb valgrind && \
 apt-get clean && rm -rf /var/lib/apt/lists/*
 
 
-# create user and add to group
-RUN groupadd --gid $GID $USER \
-  && useradd -s /bin/bash --uid $UID --gid $GID -m $USER
-
-RUN chmod -R 777 /etc/
-
-USER $USER
-
 RUN echo "LC_ALL=en_US.UTF-8" >> /etc/environment
 RUN echo "en_US.UTF-8 UTF-8" >> /etc/locale.gen
 RUN echo "LANG=en_US.UTF-8" > /etc/locale.conf
 RUN locale-gen en_US.UTF-8
 
 
+# create user and add to group
+RUN groupadd --gid $GID $USER \
+  && useradd -s /bin/bash --uid $UID --gid $GID -m $USER
+
+USER $USER
+
 # Install Buildroot
+RUN mkdir /home/$USER/ws
 RUN wget https://www.buildroot.org/downloads/buildroot-$BUILDROOT_VERSION.tar.gz -O /home/$USER/ws/buildroot.tar.gz \
-  && cd /home/$USER/ws \
-  && tar -xf buildroot.tar.gz
+  && tar -xzf /home/$USER/ws/buildroot.tar.gz -C /home/$USER/ws/ \ 
+  && rm /home/$USER/ws/buildroot.tar.gz
 
 # Terminator Config
 RUN mkdir -p /home/$USER/.config/terminator/
